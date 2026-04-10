@@ -10,7 +10,6 @@ internal class Program
         public Dictionary<string, bool> Walls { get; set; }
 
         public bool Visited;
-        public bool Solution;
 
         public Cell(int x, int y)
         {
@@ -26,7 +25,6 @@ internal class Program
         }; //Only top and right walls are necessary for now but I keep bottom and left in case I were to change the maze creation function
 
             Visited = false;
-            Solution = false;
         }
     }
     static void Main(string[] args)
