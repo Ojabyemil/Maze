@@ -2,7 +2,7 @@
 
 internal class Program
 {
-    public class Cell
+    public class Cell  //This class gives every xy coordinate in the maze it's own data that is used to construct the maze
     {
         public int X;
         public int Y;
@@ -17,13 +17,13 @@ internal class Program
             X = x;
             Y = y;
 
-            Walls = new Dictionary<string, bool>
+            Walls = new Dictionary<string, bool> //This gives every cell a set of walls that get checked when rendering and when moving
         {
             { "top", true },
             { "left", true },
             { "bottom", true },
             { "right", true }
-        };
+        }; //Only top and right walls are necessary for now but I keep bottom and left in case I were to change the maze creation function
 
             Visited = false;
             Solution = false;
@@ -34,7 +34,7 @@ internal class Program
         int score = 0;
         bool debug = false;
         subMain();
-        void subMain()
+        void subMain() //Almost the entirety of Main has to be in this subMain because it needs to remember the score when doing multiple mazes
         {
             Console.Clear();
             Console.CursorVisible = false;
@@ -92,7 +92,7 @@ internal class Program
             const int cellWidth = 4;
             const int cellHeight = 2;
 
-            Cell[,] grid = new Cell[width, height];
+            Cell[,] grid = new Cell[width, height]; //Generates the cells for the maze
 
             for (int x = 0; x < width; x++)
             {
@@ -105,30 +105,30 @@ internal class Program
 
             Console.Clear();
             Random rng = new Random();
-            Cell current = grid[rng.Next(0, width), rng.Next(0, height)];
+            Cell selected = grid[rng.Next(0, width), rng.Next(0, height)]; //Chooses a random viable cell to start the maze generation from
             bool IsGenerating = true;
-            ChooseNext(current);
-            void ChooseNext(Cell curr)
+            ChooseNext(selected);
+            void ChooseNext(Cell CurrentCell)
             {
-                current = curr;
-                int x = curr.X;
-                int y = curr.Y;
-                curr.Visited = true;
+                selected = CurrentCell;
+                int x = CurrentCell.X;
+                int y = CurrentCell.Y;
+                CurrentCell.Visited = true;
                 if (watch)
                 {
-                    Draw(false, curr.X, curr.Y);
-                    Thread.Sleep(10);
+                    Draw(false, CurrentCell.X, CurrentCell.Y);
+                    Thread.Sleep(10); //This is so that it generates at a rate that human eyes can see, otherwise it would generate way too fast
                 }
-                while (CheckNeighbours(curr))
+                while (CheckNeighbours(CurrentCell))
                 {
-                    switch (rng.Next(0, 4))
+                    switch (rng.Next(0, 4)) //Chooses a random direction to move towards, if the direction isn't available it will reroll (could theorethically get stuck forever if you're unlucky)
                     {
                         case 0:
                             if (y > 0 && grid[x, y - 1].Visited == false)
                             {
                                 Cell next = grid[x, y - 1];
-                                curr.Walls["top"] = false;
-                                grid[curr.X, curr.Y].Walls["top"] = false;
+                                CurrentCell.Walls["top"] = false;  //I have no idea if this (and next.Walls) is necessary but I'm too scared to get rid of it
+                                grid[CurrentCell.X, CurrentCell.Y].Walls["top"] = false;
                                 next.Walls["bottom"] = false;
                                 grid[next.X, next.Y].Walls["bottom"] = false;
                                 ChooseNext(next);
@@ -138,8 +138,8 @@ internal class Program
                             if (x < width - 1 && grid[x + 1, y].Visited == false)
                             {
                                 Cell next = grid[x + 1, y];
-                                curr.Walls["right"] = false;
-                                grid[curr.X, curr.Y].Walls["right"] = false;
+                                CurrentCell.Walls["right"] = false;
+                                grid[CurrentCell.X, CurrentCell.Y].Walls["right"] = false;
                                 next.Walls["left"] = false;
                                 grid[next.X, next.Y].Walls["left"] = false;
                                 ChooseNext(next);
@@ -149,8 +149,8 @@ internal class Program
                             if (y < height - 1 && grid[x, y + 1].Visited == false)
                             {
                                 Cell next = grid[x, y + 1];
-                                curr.Walls["bottom"] = false;
-                                grid[curr.X, curr.Y].Walls["bottom"] = false;
+                                CurrentCell.Walls["bottom"] = false;
+                                grid[CurrentCell.X, CurrentCell.Y].Walls["bottom"] = false;
                                 next.Walls["top"] = false;
                                 grid[next.X, next.Y].Walls["top"] = false;
                                 ChooseNext(next);
@@ -160,8 +160,8 @@ internal class Program
                             if (x > 0 && grid[x - 1, y].Visited == false)
                             {
                                 Cell next = grid[x - 1, y];
-                                curr.Walls["left"] = false;
-                                grid[curr.X, curr.Y].Walls["left"] = false;
+                                CurrentCell.Walls["left"] = false;
+                                grid[CurrentCell.X, CurrentCell.Y].Walls["left"] = false;
                                 next.Walls["right"] = false;
                                 grid[next.X, next.Y].Walls["right"] = false;
                                 ChooseNext(next);
@@ -173,7 +173,7 @@ internal class Program
             IsGenerating = false;
 
             Console.Clear();
-            if (!fog)
+            if (!fog) //This is to prevent the entire maze from being shown if you're playing fog of war
             {
                 Draw(true, 0, 0);
             }
@@ -183,7 +183,7 @@ internal class Program
             }
             void Draw(bool full, int XPos, int YPos)
             {
-                if (full)
+                if (full) //This draws the entire maze, extremely bad if you're drawing the entire maze for everytime the player moves but good for initially creating the maze
                 {
                     Console.Clear();
                     Console.SetCursorPosition(0, 0);
@@ -193,28 +193,28 @@ internal class Program
                     {
                         for (int x = 0; x < width; x++)
                         {
-                            if (x == current.X && y == current.Y && IsGenerating)
+                            if (x == selected.X && y == selected.Y && IsGenerating)
                             {
-                                Console.ForegroundColor = ConsoleColor.Yellow;
+                                Console.ForegroundColor = ConsoleColor.Yellow; //Not used since it never draws the entire maze whilst generating
                             }
                             else if (x == Player.X && y == Player.Y && !IsGenerating)
                             {
-                                Console.ForegroundColor = ConsoleColor.Red;
+                                Console.ForegroundColor = ConsoleColor.Red; //Shows the player
                             }
                             else if (x == width - 1 && y == height - 1 && !IsGenerating)
                             {
-                                Console.ForegroundColor = ConsoleColor.Green;
+                                Console.ForegroundColor = ConsoleColor.Green; //Shows the end
                             }
                             else if (grid[x, y].Visited == true)
                             {
-                                Console.ForegroundColor = ConsoleColor.Blue;
+                                Console.ForegroundColor = ConsoleColor.Blue; //Shows the path
                             }
                             else
                             {
-                                Console.ForegroundColor = ConsoleColor.Black;
+                                Console.ForegroundColor = ConsoleColor.Black; //Shows walls
                             }
                             Console.Write("██");
-                            if (grid[x, y].Walls["right"] == true)
+                            if (grid[x, y].Walls["right"] == true) //This is how the walls are actually made, I draw an extra cell between the actual cells. This is also why the player always moves two cells
                             {
                                 Console.ForegroundColor = ConsoleColor.Black;
                             }
@@ -222,13 +222,13 @@ internal class Program
                             {
                                 Console.ForegroundColor = ConsoleColor.Blue;
                             }
-                            if (y < height)
+                            if (y < height) //makes it so that we don't get weird edges at the bottom of the maze
                             {
                                 Console.Write("██");
                             }
                         }
                         Console.WriteLine();
-                        for (int x = 0; x < width; x++)
+                        for (int x = 0; x < width; x++) //This draws the inbetween walls for the y axis
                         {
                             if (grid[x, y].Walls["bottom"] == true)
                             {
@@ -246,13 +246,13 @@ internal class Program
                         Console.WriteLine();
                     }
                 }
-                else
+                else //Draws only the 3x3 square around the player, this massively reduces epilepsy
                 {
-                    if (fog)
+                    if (fog) //Clears the screen so that you can't see where you have previously been
                     {
                         Console.Clear();
                     }
-                    if (XPos > 0)
+                    if (XPos > 0) //This entire thing is a mess but I couldn't get it working when I tried shortening it, should be straightforward what it does
                     {
                         XPosMin = -1;
                     }
@@ -288,7 +288,7 @@ internal class Program
                         YPosMax = 0;
                     }
 
-                    for (int y = YPosMin; y <= YPosMax; y++)
+                    for (int y = YPosMin; y <= YPosMax; y++) //The PosMin and PosMax is to prevent the array from going out of bounds and crashing the entire thing
                     {
                         Console.SetCursorPosition((XPos + XPosMin) * cellWidth, (YPos + y) * cellHeight);
                         for (int x = XPosMin; x <= XPosMax; x++)
@@ -344,12 +344,12 @@ internal class Program
                 }
 
                 Console.ForegroundColor = ConsoleColor.White;
-                if (debug)
+                if (debug) //The debug info, I should probably make it so that it always shows the score though
                 {
                     Console.Write($"{score} {fog} {XPos} {YPos} ");
                 }
             }
-            bool CheckNeighbours(Cell current)
+            bool CheckNeighbours(Cell current) //Checks if there's any available cells to move towards when generating
             {
                 int x = current.X;
                 int y = current.Y;
@@ -390,11 +390,11 @@ internal class Program
                     available++;
                 }
 
-                if (available == 4)
+                if (available == 4) //If available == 4 then we know that no cell is possible to move to so we make it trace back in the algorithm
                 {
                     return false;
                 }
-                else
+                else //available is always at least 1 except for the very first cell (if it's not an edge)
                 {
                     return true;
                 }
@@ -404,18 +404,18 @@ internal class Program
             {
                 while (true)
                 {
-                    if (Player.X == width - 1 && Player.Y == height - 1)
+                    if (Player.X == width - 1 && Player.Y == height - 1) //If the player is on the end, it ends the game and restarts the program
                     {
                         scoreToAdd += (width * height);
                         if (fog)
                         {
-                            scoreToAdd *= 10;
+                            scoreToAdd *= 10; //Giving 10x points for fog of war is completely arbitrary and does not mean that fog of war is ten times harder than normal
                         }
                         score += scoreToAdd;
                         subMain();
                     }
                     ConsoleKeyInfo key = Console.ReadKey();
-                    switch (key.Key)
+                    switch (key.Key) //The simple WASD movement and a couple extra functions
                     {
                         case ConsoleKey.W:
                             if (grid[Player.X, Player.Y].Walls["top"] == false)
@@ -441,14 +441,14 @@ internal class Program
                                 Player = grid[Player.X - 1, Player.Y];
                             }
                             break;
-                        case ConsoleKey.K:
+                        case ConsoleKey.K: //Enables/Disables the debug info
                             debug = !debug;
                             break;
-                        case ConsoleKey.R:
+                        case ConsoleKey.R: //Manually restarts the program
                             subMain();
                             break;
                     }
-                    Draw(false, Player.X, Player.Y);
+                    Draw(false, Player.X, Player.Y); //Draws around the player to show that it moved
                 }
 
             }
