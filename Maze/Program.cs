@@ -7,7 +7,7 @@ internal class Program
         public int X;
         public int Y;
 
-        public Dictionary<string, bool> Walls { get; set; }
+        public Dictionary<string, bool> Walls { get; set; }  //Makes it so that I can create multiple named variables that behave like booleans under the same varaible
 
         public bool Visited;
 
@@ -27,7 +27,7 @@ internal class Program
             Visited = false;
         }
     }
-    static void Main(string[] args)
+    static void Main()
     {
         int score = 0;
         bool debug = false;
@@ -37,8 +37,8 @@ internal class Program
             Console.Clear();
             Console.CursorVisible = false;
             Console.Write("Select the size of your maze:\n1. Easy 6x6\n2. Medium 10x10\n3. Hard 14x14\n4. Extreme 20x20\n5. Custom\n\nPress 1-5 to choose.");
-            int width = 1;
-            int height = 1;
+            int width;
+            int height;
             int scoreToAdd = 0;
             ConsoleKeyInfo size = Console.ReadKey();
             switch (size.Key)
@@ -185,7 +185,7 @@ internal class Program
                 {
                     Console.Clear();
                     Console.SetCursorPosition(0, 0);
-                    // Console.WriteLine(XPos + " " + YPos);
+                    // Console.WriteLine(XPos + " " + YPos);  //these two commented lines are for debugging
                     // Console.WriteLine();
                     for (int y = 0; y < height; y++)
                     {
